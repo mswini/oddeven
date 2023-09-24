@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Even or Odd</title>
+		<link rel="icon" href="favicon.ico" type="image/x-icon" />
+		<link rel="apple-touch-icon" href="favicon.ico" />
+		<link rel="apple-touch-icon-precomposed" href="favicon.ico" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="viewport" content="user-scalable=no, width=device-width" />
+		<meta name="viewport" content="minimum-scale=1.0,width=device-width,maximum-scale=1,user-scalable=no" />
+		<style>
+			body {margin:0 auto;padding:0;text-align:center;font-family:arial;}
+			section {margin:3vw auto;display:inline-grid;grid-template-columns:repeat(7,auto);grid-gap:2vw}
+			section div {border:solid 1px;padding:2vw;font-size:4vw;width:4vw}
+			fieldset {display:inline-grid;grid-template-columns:auto auto;grid-gap:2vw}
+			fieldset label, section div  {cursor:pointer}
+			.white {background-color:white}
+			.gray {background-color:gray}
+			@media (max-width: 1000px) {
+				section,fieldset{margin:10vw auto 2vw auto}
+			}
+		</style>
+	</head>
+	<body>
+		<section>
+			<div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+		</section>
+		<br>
+		<fieldset>
+			<div><input name="type" data-sel="" type="radio" id="ev" checked> <label for="ev">Even</label></div>
+			<div><input name="type" data-sel="" type="radio" id="od"> <label for="od">Odd</label></div>
+		</fieldset>
+	</body>
+</html>
+<script>
+	var div = document.getElementsByTagName('div');
+	var num_isOdd = (n)=>{return(n & 1 == 1);};
+	var oddNum = 0;
+	var evenNum = 0;
+	var timer = 0;
+	var shuffle = (array) => {
+		let currentIndex = array.length,  randomIndex;
+		while (currentIndex > 0) {
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+			[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+		}
+		return array;
+	}
+	var congratulation = () => {
+		timer = setTimeout(function(){
+			document.body.style.backgroundColor = document.body.style.backgroundColor=="white"?"whitesmoke":"white";
+			congratulation();
+		},200);
+	}
+	var speak = (txt) => {
+		var word = new SpeechSynthesisUtterance(txt)
+		word.lang = 'en';
+		word.rate = 1;
+		speechSynthesis.speak(word);
+	};
+	var pressWhite = (obj) => {
+		obj.classList.add("white");
+		obj.classList.remove("gray");
+	}
+	var pressGray = (obj,isOdd) => {
+		obj.classList.add("gray");
+		obj.classList.remove("white");
+
+		var grayNum = 0;
+		[...div].forEach(o=>{
+			grayNum = o.className=='gray'?grayNum+1:grayNum;
+		});
+		if((isOdd && oddNum == grayNum) || (!isOdd && evenNum == grayNum)){
+			speak('Congratulation');
+			congratulation();
+			setTimeout("start()",2000);
+		}
+	}
+	var start = () => {
+		var switchedOdd = document.getElementById('od').checked;
+		clearTimeout(timer);
+		oddNum = 0;
+		evenNum = 0;
+		shuffle([...Array(91).keys()].slice(1,91)).slice(5,12).forEach((n,i)=>{
+			div[i].innerText = n;
+			pressWhite(div[i]);
+			div[i].dataset['typ'] = num_isOdd(n)?'odd':'even';
+			oddNum = num_isOdd(n)?oddNum+1:oddNum;
+			evenNum = !num_isOdd(n)?evenNum+1:evenNum;
+			div[i].addEventListener('click',()=>{
+				if(switchedOdd){
+					if(div[i].dataset['typ']=='odd'){
+						pressGray(div[i],true);
+					}
+					else {
+						pressWhite(div[i]);
+						speak('Not correct!');
+					}
+				}
+				else {
+					if(div[i].dataset['typ']=='even'){
+						pressGray(div[i],false);
+					}
+					else {
+						pressWhite(div[i]);
+						speak('Not correct!');
+					}
+				}
+			});
+		});
+		oddNum<1 && start();
+	}
+	[...document.getElementsByTagName('input')].forEach(inp=>{
+		inp.addEventListener('click',start);
+	});
+	start();
+</script>
