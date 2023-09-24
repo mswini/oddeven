@@ -76,11 +76,17 @@
 			speak('Congratulation');
 			congratulation();
 			setTimeout("start()",2000);
+			setTimeout(()=>{
+				clearTimeout(timer);
+			},4000);
 		}
 	}
 	var start = () => {
 		var switchedOdd = document.getElementById('od').checked;
 		clearTimeout(timer);
+		setTimeout(()=>{
+			clearTimeout(timer);
+		},1000);
 		oddNum = 0;
 		evenNum = 0;
 		shuffle([...Array(91).keys()].slice(1,91)).slice(5,12).forEach((n,i)=>{
