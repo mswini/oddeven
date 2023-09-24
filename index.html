@@ -34,7 +34,8 @@
 	</body>
 </html>
 <script>
-	var div = document.getElementsByTagName('div');
+	var div = document.querySelectorAll('section div');
+	var switchedOdd = false;
 	var num_isOdd = (n)=>{return(n & 1 == 1);};
 	var oddNum = 0;
 	var evenNum = 0;
@@ -76,17 +77,11 @@
 			speak('Congratulation');
 			congratulation();
 			setTimeout("start()",2000);
-			setTimeout(()=>{
-				clearTimeout(timer);
-			},4000);
 		}
 	}
 	var start = () => {
-		var switchedOdd = document.getElementById('od').checked;
 		clearTimeout(timer);
-		setTimeout(()=>{
-			clearTimeout(timer);
-		},1000);
+		document.body.style.backgroundColor="white";
 		oddNum = 0;
 		evenNum = 0;
 		shuffle([...Array(91).keys()].slice(1,91)).slice(5,12).forEach((n,i)=>{
@@ -95,30 +90,34 @@
 			div[i].dataset['typ'] = num_isOdd(n)?'odd':'even';
 			oddNum = num_isOdd(n)?oddNum+1:oddNum;
 			evenNum = !num_isOdd(n)?evenNum+1:evenNum;
-			div[i].addEventListener('click',()=>{
-				if(switchedOdd){
-					if(div[i].dataset['typ']=='odd'){
-						pressGray(div[i],true);
-					}
-					else {
-						pressWhite(div[i]);
-						//speak('Not correct!');
-					}
-				}
-				else {
-					if(div[i].dataset['typ']=='even'){
-						pressGray(div[i],false);
-					}
-					else {
-						pressWhite(div[i]);
-						//speak('Not correct!');
-					}
-				}
-			});
 		});
 		oddNum<1 && start();
 	}
+	[...div].forEach((dv)=>{
+		dv.addEventListener('click',()=>{
+			switchedOdd = document.getElementById('od').checked;
+			if(switchedOdd){
+				if(dv.dataset['typ']=='odd'){
+					pressGray(dv,true);
+				}
+				else {
+					speak('Not Correct!');
+					pressWhite(dv);
+				}
+			}
+			else {
+				if(dv.dataset['typ']=='even'){
+					pressGray(dv,false);
+				}
+				else {
+					speak('Not Correct!');
+					pressWhite(dv);
+				}
+			}
+		});
+	});
 	[...document.getElementsByTagName('input')].forEach(inp=>{
+		switchedOdd = document.getElementById('od').checked;
 		inp.addEventListener('click',start);
 	});
 	start();
